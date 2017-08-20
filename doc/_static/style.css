@@ -1,17 +1,30 @@
-dl.staticmethod:before,
-dl.method:before {
-	position: absolute;
-	font-family: "FontAwesome";
-	content: '';
-	display: inline-block;
-	font-style: normal;
-	font-weight: normal;
-	line-height: 1;
-	text-decoration: inherit;
-	margin-left: -20px;
+dl.staticmethod.collapsed > dd,
+dl.method.collapsed > dd {
+    display: none;
 }
 
-dl.staticmethod.collapsed:before,
-dl.method.collapsed:before {
-	content: '';
+dl.staticmethod > dd,
+dl.method > dd {
+    display: block;
+}
+
+dl.staticmethod > dt:before,
+dl.method > dt:before {
+    position: absolute;
+    font-family: "FontAwesome";
+    content: '';
+    display: inline-block;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    text-decoration: inherit;
+    margin-top: 3px;
+    margin-left: -30px;
+    white-space: pre;
+    color: #000 !important;
+}
+
+dl.staticmethod.collapsed > dt:before,
+dl.method.collapsed > dt:before {
+    content: '';
 }
