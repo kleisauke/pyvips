@@ -1,15 +1,77 @@
 sudo: false
+dist: trusty
+
+language: python
 
 env:
   global:
     - VIPS_VERSION_MAJOR=8
     - VIPS_VERSION_MINOR=5
-    - VIPS_VERSION_MICRO=7
-    - PATH=$HOME/vips/bin:$PATH
-    - LD_LIBRARY_PATH=$HOME/vips/lib:$LD_LIBRARY_PATH
-    - PKG_CONFIG_PATH=$HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
+    - VIPS_VERSION_MICRO=8
+    - VIPS_ROOT=$HOME/vips
+    - PATH=$VIPS_ROOT/bin:$PATH
+    - LD_LIBRARY_PATH=$VIPS_ROOT/lib:$LD_LIBRARY_PATH
+    - PKG_CONFIG_PATH=$VIPS_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
 
-dist: trusty
+# allow osx to fail since brew so often falls over
+matrix:
+  fast_finish: true
+  allow_failures:
+    - os: osx
+  include:
+    # these are just to make travis's UI a bit prettier
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.3
+      env: TOXENV=py33
+    - python: 3.4
+      env: TOXENV=py34
+    - python: 3.5
+      env: TOXENV=py35
+    - python: 3.6
+      env: TOXENV=py36
+    - python: pypy2.7-5.8.0
+      env: TOXENV=pypy
+    - python: pypy3.5-5.8.0
+      env: TOXENV=pypy3
+    - language: generic
+      os: osx
+      # 8.3 is macOS 10.12.x
+      # see: https://docs.travis-ci.com/user/osx-ci-environment/
+      osx_image: xcode8.3
+      env: TOXENV=py27
+    - language: generic
+      os: osx
+      # 7.3 is OS X 10.11.x
+      osx_image: xcode7.3
+      env: TOXENV=py27
+    - language: generic
+      os: osx
+      # 6.4 is OS X 10.10.x
+      osx_image: xcode6.4
+      env: TOXENV=py27
+    - language: generic
+      os: osx
+      osx_image: xcode8.3
+      env: TOXENV=py33
+    - language: generic
+      os: osx
+      osx_image: xcode8.3
+      env: TOXENV=py34
+    - language: generic
+      os: osx
+      osx_image: xcode8.3
+      env: TOXENV=py35
+    - language: generic
+      os: osx
+      osx_image: xcode8.3
+      env: TOXENV=py36
+    - language: generic
+      os: osx
+      osx_image: xcode8.3
+      env:
+        - TOXENV=pypy
+        - PYPY_VERSION=pypy2.7-5.8.0
 
 addons:
   apt:
@@ -36,26 +98,18 @@ addons:
       - libglib2.0-dev
 
 cache:
+  pip: true
+  ccache: true
   directories:
-    - $HOME/vips
+    # cache homebrew downloads
+    - $HOME/Library/Caches/Homebrew
+    - $VIPS_ROOT
 
-language: python
-python:
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "pypy"
-  - "pypy3"
+before_install:
+    - ./.travis/before-install.sh
 
 install:
-  - pip install .[test]
+    - ./.travis/install.sh
 
-script: "nosetests --logging-level=WARNING"
-
-# the vips7 py binding won't work with pypy, make sure it's off
-before_install:
-  - uname -a
-  - bash install-vips.sh --without-python
+script:
+    - ./.travis/run.sh
