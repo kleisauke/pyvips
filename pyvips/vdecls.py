@@ -176,12 +176,12 @@ def cdefs(features):
         } GEnumValue;
 
         typedef struct _GEnumClass {
-          GTypeClass *g_type_class;
+            GTypeClass *g_type_class;
 
-          int minimum;
-          int maximum;
-          unsigned int n_values;
-          GEnumValue *values;
+            int minimum;
+            int maximum;
+            unsigned int n_values;
+            GEnumValue *values;
         } GEnumClass;
 
         typedef struct _GFlagsValue {
@@ -192,11 +192,11 @@ def cdefs(features):
         } GFlagsValue;
 
         typedef struct _GFlagsClass {
-          GTypeClass *g_type_class;
+            GTypeClass *g_type_class;
 
-          unsigned int mask;
-          unsigned int n_values;
-          GFlagsValue *values;
+            unsigned int mask;
+            unsigned int n_values;
+            GFlagsValue *values;
         } GFlagsClass;
 
         void* g_type_class_ref (GType type);
