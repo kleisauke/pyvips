@@ -184,6 +184,21 @@ def cdefs(features):
           GEnumValue *values;
         } GEnumClass;
 
+        typedef struct _GFlagsValue {
+            unsigned int value;
+
+            const char *value_name;
+            const char *value_nick;
+        } GFlagsValue;
+
+        typedef struct _GFlagsClass {
+          GTypeClass *g_type_class;
+
+          unsigned int mask;
+          unsigned int n_values;
+          GFlagsValue *values;
+        } GFlagsClass;
+
         void* g_type_class_ref (GType type);
 
         void* g_object_new (GType type, void*);
