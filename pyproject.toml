@@ -63,7 +63,7 @@ zip-safe = false
 include-package-data = false
 
 [tool.setuptools.dynamic]
-version = {attr = "pyvips.__version__"}
+version = {attr = "pyvips.version.__version__"}
 
 [tool.setuptools.packages.find]
 exclude = [
@@ -71,6 +71,50 @@ exclude = [
     "examples*",
     "tests*",
 ]
+
+[tool.cibuildwheel]
+# Only build CPython 3.7, because we have portable abi3 wheels
+# Apple Silicon is only available on 3.8 and later
+build = [
+    "cp37-*",
+    "cp38-macosx_arm64"
+]
+build-frontend = "build"
+before-build = "bash {project}/cibw_before_build.sh"
+test-command = "python -c \"import pyvips; assert pyvips.API_mode\""
+environment-pass = ["RUNNER_OS"]
+
+[tool.cibuildwheel.environment]
+PKG_CONFIG_PATH = "./tmp/lib/pkgconfig"
+LD_LIBRARY_PATH = "$(pwd)/tmp/lib"
+DYLD_LIBRARY_PATH = "$(pwd)/tmp/lib"
+MACOSX_DEPLOYMENT_TARGET = "10.13"
+
+[tool.cibuildwheel.linux]
+archs = "x86_64 aarch64"
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+musllinux-x86_64-image = "musllinux_1_2"
+musllinux-aarch64-image = "musllinux_1_2"
+
+[[tool.cibuildwheel.overrides]]
+select = "*-musllinux*"
+# Exclude a couple of system libraries from grafting into the resulting wheel
+repair-wheel-command = """\
+auditwheel repair -w {dest_dir} {wheel} \
+--exclude libc.so --exclude libstdc++.so.6 --exclude libgcc_s.so.1\
+"""
+
+[tool.cibuildwheel.macos]
+archs = "x86_64 arm64"
+# Apple Silicon CI runners are not widely available
+test-skip = "*-macosx_arm64"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64 x86"
+# Use delvewheel on windows
+before-all = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --add-path ./tmp/lib -w {dest_dir} {wheel}"
 
 [project.optional-dependencies]
 # All the following are used for our own testing

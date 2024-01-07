@@ -1,0 +1,46 @@
+name: Wheels
+
+#on:
+#  push:
+#    tags: ['v*.*.*']
+
+# Temporary:
+on: [push, pull_request]
+
+jobs:
+  wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install pkg-config
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ucrt64
+          install: mingw-w64-ucrt-x86_64-pkg-config
+
+      - name: Put MSYS2 on PATH
+        if: runner.os == 'Windows'
+        run: Add-Content $env:GITHUB_PATH "$env:RUNNER_TEMP\msys64\ucrt64\bin"
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
